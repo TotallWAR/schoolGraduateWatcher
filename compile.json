@@ -1,0 +1,9 @@
+{
+	    "less": [
+	        "public/less/parent/main.less",
+            "public/less/teacher/main.less",
+            "public/less/headerNotAuthorized.less",
+            "public/less/toastMessager.less",
+            "public/less/admin/main.less"
+	    ]
+}

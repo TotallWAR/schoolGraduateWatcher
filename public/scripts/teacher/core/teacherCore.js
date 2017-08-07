@@ -1,0 +1,1 @@
+angular.module('teacher', ['pupilService', 'marksService', 'pupilFilters', 'pupilController', 'partialController', 'chatFilters', 'chatDirectives', 'chatService', 'usersService', 'chatTeacherController', 'uploadDirectives', 'upDownloadService', 'upDownloadController', 'homeworkController', 'attendanceController']);

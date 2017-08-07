@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="csrf-token" content="XYZ123">
+    <meta charset="utf-8">
+    <!-- BOOTSTRAP -->
+    <!--	 <link href="css/bootstrap.css" rel="stylesheet" /> -->
+    <!--	 <link href="css/bootstrap-theme.css" rel="stylesheet" /> -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- ANGULARJS -->
+
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.0.0/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular.min.js"></script>
+    <script src="http://angular-ui.github.io/bootstrap/ui-bootstrap-tpls-0.10.0.js" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.js"></script>
+
+    <script src="public/scripts/teacher/scroll.js"></script>
+    <!--    Блок включений для изменения оценок-->
+    <script src="public/scripts/teacher/filters/pupilFilter.js"></script>
+    <script src="public/scripts/shared/pupilService.js"></script>
+    <script src="public/scripts/teacher/services/marksService.js"></script>
+    <script src="public/scripts/teacher/controllers/pupilController.js"></script>
+
+    <!--    блок включений для чата-->
+    <script src="public/scripts/teacher/filters/chatFilter.js"></script>
+    <script src="public/scripts/teacher/services/chatService.js"></script>
+    <script src="public/scripts/shared/usersService.js"></script>
+    <script src="public/scripts/teacher/controllers/chatController.js"></script>
+    <script src="public/scripts/teacher/directives/chatDirective.js"></script>
+
+    <!--      блок включений для файлов-->
+    <script src="public/scripts/shared/upDownloadController.js"></script>
+    <script src="public/scripts/shared/upDownloadService.js"></script>
+    <script src="public/scripts/shared/uploadDirective.js"></script>
+
+
+    <!--      блок для д/з-->
+    <script src="public/scripts/teacher/controllers/homeworkController.js"></script>
+    <script src="public/scripts/teacher/schedule/main.js"></script>
+
+    <!--    блок для посещаемости-->
+    <link rel="stylesheet" href="public/scripts/shared/ng-table/ng-table.min.css">
+    <script src="public/scripts/shared/ng-table/ng-table.min.js"></script>
+    <script src="public/scripts/teacher/controllers/attendanceController.js"></script>
+
+    <!--        <script src="scripts/shared/angular-table.js"></script>-->
+
+    <!--        <script src="scripts/shared/angular-table.min.js"></script>-->
+
+
+    <script src="public/scripts/shared/partialController.js"></script>
+    <script src="public/scripts/teacher/core/teacherCore.js"></script>
+
+
+
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600" rel="stylesheet">
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <link rel="stylesheet" type="text/css" href="public/css/styleTeacher.css">
+
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/css/bootstrap-datepicker.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/js/bootstrap-datepicker.min.js"></script>
+
+    <title>PWA</title>
+
+</head>
+<div ng-app="teacher" class="ng-scope">
+    <div ng-controller="partialCtrl">
+        <div class="headerTeacher">
+            <nav class="navbar navbar-default" id="colorful-nav">
+                <div class="container">
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+                    </div>
+                    <div class="collapse navbar-collapse" id="myNavbar">
+                        <ul class="nav navbar-nav">
+                            <li class="lists" id="marks"><a class="page-scroll" href="#homework"><span class="glyphicon glyphicon-list-alt"></span><h5>MARKS</h5></a></li>
+                            <li class="statistics" id="statistics"><a class="page-scroll" href="#schedule"><span class="glyphicon glyphicon-align-justify"></span><h5>HOMEWORK</h5></a></li>
+                            <li class="profile" id="profile"><a class="page-scroll" href="#form"><span class="glyphicon glyphicon-user"></span><h5>ATTENDANCE</h5></a></li>
+
+                            <li class="chatMenu" id="chatMenu"><a class="page-scroll" href="#tutorChat"><span class="glyphicon glyphicon-envelope"></span><h5>CHAT</h5></a></li>
+
+                            <li class="about" id="upDownloadMenu"><a class="page-scroll" href="#upDownload"><span class="glyphicon glyphicon-info-sign"></span><h5>UP/DOWNLOAD</h5></a></li>
+                            <li class="logout" id="logout"><a ng-click="logout()" href="#"><span class="glyphicon glyphicon-log-out"></span><h5>Logout</h5></a></li>
+
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+            <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        </div>
+    </div>
+
+    <div class="push" style="text-align: center;">
+        <h1>Push Notification</h1>
+        <p style="margin-top: 40px;">
+            You can enable push notifications to always be up to date with the latest events. Notice, you can turn in off if you dont like it.
+        </p>
+        <p style="margin: 40px 0px">
+            <button disabled class="js-push-btn mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect">
+        Enable Push Messaging
+      </button>
+        </p>
+        <section class="subscription-details js-subscription-details is-invisible" style="display:none;">
+            <pre><code class="js-subscription-json" ></code></pre>
+        </section>
+    </div>
+    <div id="marksPresentation" ng-controller="pupilCtrl">
+        <h1>Marks</h1>
+        <div class="subjectSelect">
+            <select id="subjectSelect" class="mainselection" ng-model="subjectSelected" ng-change="changedSubjectValue(subjectSelected)" data-ng-options="subject as subject.subjectName for subject in subjects">
+                            <option value="">
+                                Select subject
+                            </option>
+              </select>
+        </div>
+
+        <div id="fishLayer" class="aqua" style="height:480px; margin:0 auto; border-radius:4px; width:90%; ">
+            <div class="fish" id="fish"></div>
+            <div class="fish" id="fish2"></div>
+        </div>
+
+        <div id="markBuilding" style="display:none; margin-top:30px;">
+            <input type="text" name="search" ng-model="search.fullName" placeholder="Search.." />
+            <br />
+            <p><strong><a href="" ng-click="resetFilters()">Show All</a></strong></p>
+
+            <div class="col">
+                <table class="table" style="width:100%">
+                    <thead>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Class</th>
+                        <th class="showAllPupils" ng-click="changeFilter()">Sex</th>
+
+                    </thead>
+                    <tr class="pupilTr" ng-repeat="item in filtered = items | filter:search | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit" id="{{item._id}}" ng-click="saveCurrentPupil(item)" focus-index="1" data-toggle="modal" focus-element="autofocus" data-target=".bs-example-modal-lg">
+                        <td>{{item.firstName}}</td>
+                        <td>{{item.lastName}}</td>
+                        <td>{{item.class}}</td>
+                        <td>{{item.sex}}</td>
+                    </tr>
+                </table>
+            </div>
+
+            <pagination page="currentPage" max-size="noOfPages" total-items="totalItems" items-per-page="entryLimit"></pagination>
+
+
+            <div class="modal fade bs-example-modal-lg" focus-group focus-group-head="loop" focus-group-tail="loop" focus-stacktabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                            <h4 class="modal-title" id="myModalLabel">Mark resolution</h4>
+                        </div>
+                        <form>
+                            <div class="modal-body">
+                                <label>Select date of work</label>
+                                <div class="input-group date">
+                                    <input type="text" class="form-control" ng-model="date" name="date"><span class="input-group-addon"><i class="glyphicon glyphicon-th"></i></span>
+                                </div>
+                                <script>
+                                    $('.input-group.date').datepicker({
+                                        language: "en-GB"
+                                    });
+                                </script>
+
+                                <label>Enter grade</label>
+                                <input ng-model="mark" name="mark" type="number" min="1" class="form-control" max="100" step="5" value="0">
+                                <!--
+                  <label>Comment work</label>
+                  <input type="text" class="form-control" ng-model="comment" cols="40" rows="5" name="comment">
+-->
+                                <label>Select type of work</label>
+                                <select class="form-control" ng-model="typeOfWork" name="typeOfWork">
+                      <option value="classExam">Class Exam</option>
+                      <option value="assignment">Assignment</option>
+                      <option value="homework">Homework</option>
+                  </select>
+
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" focus-element="autofocus" data-dismiss="modal">Close</button>
+                                <button type="submit" id="submit" value="Submit" class="btn btn-primary" data-dismiss="modal" aria-hidden="true" ng-click="saveMark()">Save changes</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <div id="homeworkPresent" class="homework" ng-controller="homeworkCtrl">
+        <h1>Homework</h1>
+        <div class="subjectSelect">
+
+            <select id="subjectSelectHomework" class="mainselection" ng-model="subjectSelectedHomework" ng-change="changedSubjectValue(subjectSelectedHomework)" data-ng-options="subject as subject.subjectName for subject in Subjects">
+                            <option value="">
+                                Select subject
+                            </option>
+  </select>
+            <select id="typeClassSelect" class="mainselection" ng-model="classSelected" ng-change="changedClassValue(classSelected)" data-ng-options="class as class.name for class in classes" style="display:none; margin: 24px;"><option value="">Select class</option></select>
+        </div>
+
+        <div id="fishLayerHomework" class="aqua" style="height:480px; margin:0 auto; border-radius:4px; width:90%;">
+            <div class="fish" id="fish"></div>
+            <div class="fish" id="fish2"></div>
+        </div>
+
+        <div class="schedule" id="schedule" style="display:none;">
+            <div id="wrapper" style="text-align: center">
+            </div>
+
+            <body>
+                <div class="cd-schedule loading">
+                    <div class="timeline">
+                        <ul>
+                            <li><span>09:00</span></li>
+                            <li><span>09:30</span></li>
+                            <li><span>10:00</span></li>
+                            <li><span>10:30</span></li>
+                            <li><span>11:00</span></li>
+                            <li><span>11:30</span></li>
+                            <li><span>12:00</span></li>
+                            <li><span>12:30</span></li>
+                            <li><span>13:00</span></li>
+                            <li><span>13:30</span></li>
+                            <li><span>14:00</span></li>
+                            <li><span>14:30</span></li>
+                            <li><span>15:00</span></li>
+                            <li><span>15:30</span></li>
+                            <li><span>16:00</span></li>
+                            <li><span>16:30</span></li>
+                            <li><span>17:00</span></li>
+                            <li><span>17:30</span></li>
+                            <li><span>18:00</span></li>
+                        </ul>
+                    </div>
+                    <!-- .timeline -->
+
+                    <div ng-view class="events">
+                        <ul>
+                            <li class="events-group">
+                                <div class="top-info"><span>Monday</span></div>
+
+                                <ul>
+                                    <li ng-repeat="item in schedule.monday" my-repeat-directive class="single-event" data-start="{{item.StartTime}}" data-end="{{item.EndTime}}" data-content="Teacher: {{item.Teacher}}<br><br>Room: {{item.Room}}<br><br>Homework: {{item.Homework}}" data-event="event-1"
+                                        data-weekday="monday" data-scheduleid="{{schedule._id}}" data- style="display:{{(item.Subject !== currentSubject.subjectName)?'none':''}}">
+                                        <a href="#0">
+                                            <em class="event-name">{{item.Subject}}</em>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="events-group">
+                                <div class="top-info"><span>Tuesday</span></div>
+
+                                <ul>
+                                    <li ng-repeat="item in schedule.tuesday" my-repeat-directive class="single-event" data-start="{{item.StartTime}}" data-end="{{item.EndTime}}" data-content="Teacher: {{item.Teacher}}<br><br>Room: {{item.Room}}<br><br>Homework: {{item.Homework}}" data-weekday="tuesday"
+                                        data-scheduleid="{{schedule._id}}" data-event="event-1" style="display:{{(item.Subject !== currentSubject.subjectName)?'none':''}}">
+                                        <a href="#0">
+                                            <em class="event-name">{{item.Subject}}</em>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="events-group">
+                                <div class="top-info"><span>Wednesday</span></div>
+
+                                <ul>
+                                    <li ng-repeat="item in schedule.wednesday" my-repeat-directive class="single-event" data-start="{{item.StartTime}}" data-end="{{item.EndTime}}" data-weekday="wednesday" data-scheduleid="{{schedule._id}}" data-content="Teacher: {{item.Teacher}}<br><br>Room: {{item.Room}}<br><br>Homework: {{item.Homework}}"
+                                        data-event="event-1" style="display:{{(item.Subject !== currentSubject.subjectName)?'none':''}}">
+                                        <a href="#0">
+                                            <em class="event-name">{{item.Subject}}</em>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="events-group">
+                                <div class="top-info"><span>Thursday</span></div>
+
+                                <ul>
+                                    <li ng-repeat="item in schedule.thursday" my-repeat-directive class="single-event" data-start="{{item.StartTime}}" data-end="{{item.EndTime}}" data-weekday="thursday" data-scheduleid="{{schedule._id}}" data-content="Teacher: {{item.Teacher}}<br><br>Room: {{item.Room}}<br><br>Homework: {{item.Homework}}"
+                                        data-event="event-1" style="display:{{(item.Subject !== currentSubject.subjectName)?'none':''}}">
+                                        <a href="#0">
+                                            <em class="event-name">{{item.Subject}}</em>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="events-group">
+                                <div class="top-info"><span>Friday</span></div>
+
+                                <ul>
+                                    <li ng-repeat="item in schedule.friday" my-repeat-directive class="single-event" data-start="{{item.StartTime}}" data-end="{{item.EndTime}}" data-weekday="friday" data-scheduleid="{{schedule._id}}" data-content="Teacher: {{item.Teacher}}<br><br>Room: {{item.Room}}<br><br>Homework: {{item.Homework}}"
+                                        data-event="event-1" style="display:{{(item.Subject !== currentSubject.subjectName)?'none':''}}">
+                                        <a href="#0">
+                                            <em class="event-name">{{item.Subject}}</em>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+
+
+                        </ul>
+                    </div>
+
+                    <div class="event-modal">
+                        <header class="header">
+                            <div class="content">
+                                <span class="event-date"></span>
+                                <h3 class="event-name"></h3>
+                            </div>
+
+                            <div class="header-bg"></div>
+                        </header>
+
+                        <div class="body">
+                            <div class="event-info"></div>
+                            <div class="body-bg"></div>
+                        </div>
+
+                        <a href="#0" class="close">Close</a>
+                    </div>
+
+                    <div class="cover-layer"></div>
+                </div>
+                <!-- .cd-schedule -->
+
+                <script src="public/scripts/parent/schedule/modernizr.js"></script>
+
+                <script>
+                    if (!window.jQuery) document.write('<script src="pu/jquery-3.0.0.min.js"><\/script>');
+                </script>
+            </body>
+        </div>
+    </div>
+
+
+
+    <div id="attendancePresent" class="attendance" ng-controller="attendanceCtrl">
+
+        <h1>Attendance</h1>
+        <div class="subjectSelect">
+
+            <select id="subjectSelectAttendance" class="mainselection" ng-model="subjectSelected" ng-change="changedSubjectValue(subjectSelected)" data-ng-options="subject as subject.subjectName for subject in subjects">
+                    <option value="">
+                        Select subject
+                    </option>
+    </select>
+            <select id="typeClassSelectForAttendance" class="mainselection" ng-model="classSelected" ng-change="changedClassValue(classSelected)" data-ng-options="class as class.name for class in classes" style="margin: 24px; display:none"><option value="">Select class</option></select>
+        </div>
+        <div id="fishLayerAttendance" class="aqua" style="height:480px; margin:0 auto; border-radius:4px; width:90%; ">
+            <div class="fish" id="fish"></div>
+            <div class="fish" id="fish2"></div>
+        </div>
+        <table ng-table="tableParams" id="tableAttandance" class="table table-bordered table-hover table-condensed" style="display:none;">
+            <thead>
+                <tr style="font-weight: bold; white-space: nowrap">
+
+                    <!-- username header -->
+                    <td style="width:40%">
+                        Name
+                    </td>
+
+                    <td ng-repeat="pupil in pupilNames">
+                        {{pupil.pupilName}}
+                    </td>
+
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr ng-repeat="attendance in $data">
+                    <td>
+                        {{attendance.date}}
+
+                    </td>
+
+                    <td ng-repeat="pupilAttend in pupilAttendance[$index]">
+
+                        <input type="checkbox" class="selectAttendance" ng-init="boolAttendance=pupilAttend.attendance" ng-model="boolAttendance" ng-change="changedPupilAttendance(boolAttendance)" ng-true-value="true" ng-false-value="false">
+
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+
+
+    <div focus-highlight=""></div>
+
+
+    <div id="tutorChat" style="margin-top: 100px;">
+        <h1>Parent chat</h1>
+        <div ng-controller="chatTeacherCtrl" class="ng-scope">
+
+
+
+            <form ng-submit="sendMessage()" class="ng-pristine ng-valid">
+
+                <div class="overflowable">
+                    <!-- ngRepeat: message in messages -->
+                    <select class="mainselection" ng-model="parentSelected" ng-change="changedValue(parentSelected)" data-ng-options="parent as parent.fullName for parent in parents">
+                        <option value="">
+                            Select Parent
+                        </option>
+                      </select>
+
+                    <div id="chatBody" class="panel-body">
+                        <hr>
+                        <ul class="chat" ng-bind-html="renderHtml(htmlCodeMessages)">
+                        </ul>
+                    </div>
+                    <div class="panel-footer">
+
+                        <div class="input-group">
+                            <input ng-model="message" id="btn-input" type="text" class="form-control ng-pristine ng-valid input-sm" placeholder="Type your message here..." />
+                            <span class="input-group-btn">
+                            <button type="submit" value="Send" class="btn btn-warning btn-sm" id="btn-chat">
+                                Send</button>
+                        </span>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <div class="clr">
+            </div>
+        </div>
+    </div>
+
+
+    <div id="upDownload" ng-controller="upDownloadCtrl">
+        <script>
+            (function(e, t, n) {
+                var r = e.querySelectorAll("html")[0];
+                r.className = r.className.replace(/(^|\s)no-js(\s|$)/, "$1js$2")
+            })(document, window, 0);
+        </script>
+        <h1>Up/Downloading files</h1>
+        <div class="box">
+            <div class="buttonsGroup">
+                <input type="file" name="file-5[]" id="file-5" class="inputfile inputfile-4" data-multiple-caption="{count} files selected" multiple file-model="myFile" />
+                <label for="file-5"><figure><svg xmlns="http://www.w3.org/2000/svg" width="20" height="17" viewbox="0 0 20 17"><path d="M10 0l-5.2 4.9h3.3v5.1h3.8v-5.1h3.3l-5.2-4.9zm9.3 11.5l-3.2-2.1h-2l3.4 2.6h-3.5c-.1 0-.2.1-.2.1l-.8 2.3h-6l-.8-2.2c-.1-.1-.1-.2-.2-.2h-3.6l3.4-2.6h-2l-3.2 2.1c-.4.3-.7 1-.6 1.5l.6 3.1c.1.5.7.9 1.2.9h16.3c.6 0 1.1-.4 1.3-.9l.6-3.1c.1-.5-.2-1.2-.7-1.5z"/></svg></figure> <span>Choose a file&hellip;</span></label>
+
+                <button ng-click="uploadFile()" id="file-6" class="inputfile inputfile-5"></button>
+                <label for="file-6"><figure><svg xmlns="http://www.w3.org/2000/svg" width="20" height="17" viewbox="0 0 20 17"><path d="M10 0l-5.2 4.9h3.3v5.1h3.8v-5.1h3.3l-5.2-4.9zm9.3 11.5l-3.2-2.1h-2l3.4 2.6h-3.5c-.1 0-.2.1-.2.1l-.8 2.3h-6l-.8-2.2c-.1-.1-.1-.2-.2-.2h-3.6l3.4-2.6h-2l-3.2 2.1c-.4.3-.7 1-.6 1.5l.6 3.1c.1.5.7.9 1.2.9h16.3c.6 0 1.1-.4 1.3-.9l.6-3.1c.1-.5-.2-1.2-.7-1.5z"/></svg></figure> <span>Upload File</span></label>
+
+
+            </div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th> File Name </th>
+                        <th> Download </th>
+                    </tr>
+                </thead>
+                <tbody id="tbody">
+                </tbody>
+            </table>
+        </div>
+        <script src="public/scripts/teacher/custom-file-input.js"></script>
+
+
+
+    </div>
+    <div class="footer" ng-include src="'public/partial/footer.html'">
+    </div>
+
+    <script src="public/scripts/push/pushController.js"></script>
+
+    <script src="upup.min.js"></script>
+    <script src="upup.sw.min.js"></script>
+
+    <script></script>
+    <script>
+        UpUp.start({
+            'content-url': 'app/views/offline.html',
+            'assets': [
+                'public/css/offline.css'
+                // Other assets like images, JS libraries etc
+            ]
+        });
+    </script>
+    <!-- <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker
+                .register('/swTeacher.js')
+                .then(function() {
+                    console.log("Service Worker Registered");
+                });
+        }
+    </script> -->
+</div>
+
+
+
+
+
+
+<!--  </div>-->
+
+</html>

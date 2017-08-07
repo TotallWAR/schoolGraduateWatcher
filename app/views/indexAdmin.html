@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="csrf-token" content="XYZ123">
+    <meta charset="utf-8">
+    <!-- BOOTSTRAP -->
+    <!--	 <link href="css/bootstrap.css" rel="stylesheet" /> -->
+    <!--	 <link href="css/bootstrap-theme.css" rel="stylesheet" /> -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- ANGULARJS -->
+
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.0.0/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular.min.js"></script>
+    <script src="http://angular-ui.github.io/bootstrap/ui-bootstrap-tpls-0.10.0.js" type="text/javascript"></script>
+
+    <script src="public/scripts/admin/scroll.js"></script>
+
+    <!--      секция одобрения зарегестрированных юзеров-->
+    <script src="public/scripts/shared/usersService.js"></script>
+    <script src="public/scripts/admin/controllers/approveUsersAdminController.js"></script>
+    <link rel="stylesheet" href="public/scripts/shared/ng-table/ng-table.min.css">
+    <script src="public/scripts/shared/ng-table/ng-table.min.js"></script>
+
+    <!--      секция включений для создания и изменения расписания-->
+    <script src="public/scripts/shared/pupilService.js"></script>
+    <script src="public/scripts/shared/scheduleService.js"></script>
+    <script src="public/scripts/admin/controllers/scheduleMakerController.js"></script>
+    <script src="public/scripts/admin/schedule/main.js"></script>
+
+
+    <!--  секция включений для отправки пуш уведомлений-->
+    <script src="public/scripts/admin/controllers/pushController.js"></script>
+    <script src="public/scripts/admin/services/pushService.js"></script>
+
+
+    <script src="public/scripts/shared/partialController.js"></script>
+    <script src="public/scripts/admin/core/adminCore.js"></script>
+
+
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600" rel="stylesheet">
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <link rel="stylesheet" type="text/css" href="public/css/styleAdmin.css">
+
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/css/bootstrap-datepicker.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/js/bootstrap-datepicker.min.js"></script>
+
+    <title>PWA</title>
+
+</head>
+<div ng-app="admin" class="ng-scope">
+    <div ng-controller="partialCtrl">
+        <div class="headerAdmin">
+            <nav class="navbar navbar-default" id="colorful-nav">
+                <div class="container">
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    </div>
+                    <div class="collapse navbar-collapse" id="myNavbar">
+                        <ul class="nav navbar-nav">
+                            <li class="profile" id="profile"><a class="page-scroll" href="#form"><span class="glyphicon glyphicon-user"></span><h5>PUPILS</h5></a></li>
+                            <li class="statistics" id="statistics"><a class="page-scroll" href="#schedule"><span class="glyphicon glyphicon-align-justify"></span><h5>SCHEDULE</h5></a></li>
+                            <li class="chatMenu" id="chatMenu"><a class="page-scroll" href="#tutorChat"><span class="glyphicon glyphicon-envelope"></span><h5>CHAT</h5></a></li>
+                            <li class="lists" id="marks"><a class="page-scroll" href="#homework"><span class="glyphicon glyphicon-list-alt"></span><h5>MARKS</h5></a></li>
+                            <li class="about" id="upDownloadMenu"><a class="page-scroll" href="#upDownload"><span class="glyphicon glyphicon-info-sign"></span><h5>UP/DOWNLOAD</h5></a></li>
+                            <li class="logout" id="logout"><a ng-click="logout()" href="#"><span class="glyphicon glyphicon-log-out"></span><h5>Logout</h5></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+            <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        </div>
+    </div>
+
+    <div class="notApprovedUsers" ng-controller="approveUsersAdminCtrl">
+        <table ng-table="tableParams" id="tableAttandance" class="table table-bordered table-hover table-condensed">
+            <thead>
+                <tr style="font-weight: bold; white-space: nowrap">
+
+                    <!-- username header -->
+                    <td>
+                        Name
+                    </td>
+
+                    <td>
+                        Email
+                    </td>
+                    <td>
+                        Phone Number
+                    </td>
+
+                    <td>
+                        Zip
+                    </td>
+
+                    <td>
+                        Type Of User
+                    </td>
+
+                    <td>
+                        Is User Approved
+                    </td>
+
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr ng-repeat="user in $data">
+                    <td>
+                        {{user.firstName}} {{user.lastName}}
+                    </td>
+                    <td>
+                        {{user.username}}
+                    </td>
+                    <td>
+                        {{user.phoneNumber}}
+                    </td>
+                    <td>
+                        {{user.zip}}
+                    </td>
+                    <td>
+                        {{user.type}}
+                    </td>
+
+
+                    <td>
+                        <input type="checkbox" class="selectAttendance" ng-init="boolApprovance=user.isAccepteByAdmin" ng-model="boolApprovance" ng-change="changedUserAcception(user, boolApprovance)" ng-true-value="true" ng-false-value="false">
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div id="scheduleMaker" ng-controller="scheduleMakerCtrl">
+        <h1>Schedule creator</h1>
+        <div class="subjectSelect">
+            <select id="classSelect" class="mainselection" ng-model="classSelected" ng-change="changedClassValue(classSelected)" data-ng-options="class as class.name for class in classes">
+                              <option value="">
+                                  Select class
+                              </option>
+                </select>
+        </div>
+
+        <div id="fishLayerHomework" class="aqua" style="height:480px; margin:0 auto; border-radius:4px; width:90%;">
+            <div class="fish" id="fish"></div>
+            <div class="fish" id="fish2"></div>
+        </div>
+        <div class="schedule" id="schedule" style="display:none;">
+
+            <body>
+                <div class="cd-schedule loading">
+                    <div class="timeline">
+                        <ul>
+                            <li><span>09:00</span></li>
+                            <li><span>09:30</span></li>
+                            <li><span>10:00</span></li>
+                            <li><span>10:30</span></li>
+                            <li><span>11:00</span></li>
+                            <li><span>11:30</span></li>
+                            <li><span>12:00</span></li>
+                            <li><span>12:30</span></li>
+                            <li><span>13:00</span></li>
+                            <li><span>13:30</span></li>
+                            <li><span>14:00</span></li>
+                            <li><span>14:30</span></li>
+                            <li><span>15:00</span></li>
+                            <li><span>15:30</span></li>
+                            <li><span>16:00</span></li>
+                            <li><span>16:30</span></li>
+                            <li><span>17:00</span></li>
+                            <li><span>17:30</span></li>
+                            <li><span>18:00</span></li>
+                        </ul>
+                    </div>
+                    <!-- .timeline -->
+
+                    <div ng-view class="events">
+                        <ul>
+                            <li class="events-group">
+                                <div class="top-info" data-weekday="monday" data-scheduleid="{{schedule._id}}" ng-click="createEvent($event)"><span>Monday</span></div>
+
+                                <ul>
+                                    <li ng-repeat="item in schedule.monday" my-repeat-directive class="single-event" data-start="{{item.StartTime}}" data-end="{{item.EndTime}}" data-weekday="monday" data-scheduleid="{{schedule._id}}" data-content="{{item.Teacher}}<br><br>{{item.Room}}"
+                                        data-event="event-1">
+                                        <a href="#0">
+                                            <em class="event-name">{{item.Subject}}</em>
+                                            <span href="#" class="customClose" ng-click="deleteCurrentEvent($event)">
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="events-group">
+                        <div class="top-info" data-weekday="tuesday" data-scheduleid="{{schedule._id}}" ng-click="createEvent($event)"><span>Tuesday</span></div>
+
+                    <ul>
+                        <li ng-repeat="item in schedule.tuesday" my-repeat-directive class="single-event" data-start="{{item.StartTime}}" data-end="{{item.EndTime}}" data-weekday="tuesday" data-scheduleid="{{schedule._id}}" data-content="{{item.Teacher}}<br><br>{{item.Room}} "
+                            data-event="event-4">
+                            <a href="#0">
+                                <em class="event-name">{{item.Subject}}</em>
+                                <span href="#" class="customClose" ng-click="deleteCurrentEvent($event)">
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="events-group">
+                        <div class="top-info" data-weekday="wednesday" data-scheduleid="{{schedule._id}}" ng-click="createEvent($event)"><span>Wednesday</span></div>
+
+                <ul>
+                    <li ng-repeat="item in schedule.wednesday" my-repeat-directive class="single-event" data-start="{{item.StartTime}}" data-end="{{item.EndTime}}" data-weekday="wednesday" data-scheduleid="{{schedule._id}}" data-content="{{item.Teacher}}<br><br>{{item.Room}}"
+                        data-event="event-3">
+                        <a href="#0">
+                            <em class="event-name">{{item.Subject}}</em>
+                            <span href="#" class="customClose" ng-click="deleteCurrentEvent($event)">
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="events-group">
+                        <div class="top-info" data-weekday="thursday" data-scheduleid="{{schedule._id}}" ng-click="createEvent($event)"><span>Thursday</span></div>
+
+        <ul>
+            <li ng-repeat="item in schedule.thursday" my-repeat-directive class="single-event" data-start="{{item.StartTime}}" data-end="{{item.EndTime}}" data-weekday="thursday" data-scheduleid="{{schedule._id}}" data-content="{{item.Teacher}}<br><br>{{item.Room}}"
+                data-event="event-1">
+                <a href="#0">
+                    <em class="event-name">{{item.Subject}}</em>
+                    <span href="#" class="customClose" ng-click="deleteCurrentEvent($event)">
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="events-group">
+                        <div class="top-info" data-weekday="friday" data-scheduleid="{{schedule._id}}" ng-click="createEvent($event)"><span>Friday</span></div>
+
+    <ul>
+        <li ng-repeat="item in schedule.friday" my-repeat-directive class="single-event" data-start="{{item.StartTime}}" data-end="{{item.EndTime}}" data-weekday="friday" data-scheduleid="{{schedule._id}}" data-content="{{item.Teacher}}<br><br>{{item.Room}}"
+            data-event="event-3">
+            <a href="#0">
+                <em class="event-name">{{item.Subject}}</em>
+                <span href="#" class="customClose" ng-click="deleteCurrentEvent($event)">
+                                </a>
+                            </li>
+    </ul>
+                    </li>
+
+
+                </ul>
+            </div>
+
+            <div class="event-modal">
+                <header class="header">
+                    <div class="content">
+                        <span class="event-date"></span>
+                <h3 class="event-name"></h3>
+</div>
+
+<div class="header-bg"></div>
+</header>
+
+<div class="body">
+    <div class="event-info"></div>
+    <div class="body-bg"></div>
+</div>
+
+<a href="#0" class="close">Close</a>
+</div>
+
+<div class="cover-layer"></div>
+</div>
+<!-- .cd-schedule -->
+
+<script src="public/scripts/teacher/schedule/modernizr.js"></script>
+
+<script>
+    if (!window.jQuery) document.write('<script src="pu/jquery-3.0.0.min.js"><\/script>');
+</script>
+</body>
+</div>
+</div>
+<div ng-controller="pushCtrl" class="push col">
+    <h1>Send push notification</h1>
+    <form>
+
+        <select id="typeUsersPush" class="mainselection" ng-model="typeUsersPushSelected" name="typeUsersPush">
+                    <option value="">
+                        Select group of users
+                    </option>
+                    <option value="All">
+                        All
+                    </option>
+                    <option value="Teacher">
+                        Teachers
+                    </option>
+                    <option value="Parent">
+                        Parents
+                    </option>
+      </select>
+        <div style="width:90%;">
+            <textarea class="form-control" type="text" rows="3" id="push-subscription" ng-model="message" name="message"></textarea>
+        </div>
+        <div style="width: 90%;
+    margin-top: 10px;">
+            <input type="submit" id="submit" value="Push" ng-click="changedtypeUsersPushValue(typeUsersPushSelected)" />
+        </div>
+
+    </form>
+
+
+</div>
+
+<div class="footer" ng-include src="'public/partial/footer.html'">
+</div>
+
+
+
+
+</div>
+<!--  </div>-->
+
+<script src="upup.min.js"></script>
+<script src="upup.sw.min.js"></script>
+
+<script></script>
+<script>
+    UpUp.start({
+        'content-url': 'app/views/offline.html',
+        'assets': [
+            'public/css/offline.css'
+            // Other assets like images, JS libraries etc
+        ]
+    });
+</script>
+<!--  </div>-->
+
+</html>
